@@ -15,12 +15,23 @@
             --accent-color: #3498db;
             --text-color: #333;
             --background-color: #fff;
+            --border-color: #3498db;
+        }
+        
+        [data-theme="dark"] {
+            --dark-icon-color: #a1b2c3;
+            --dark-link-color: #5dade2;
+            --accent-color: #3498db;
+            --text-color: #e1e1e1;
+            --background-color: #1e1e1e;
+            --border-color: #3498db;
         }
         
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         body {
@@ -31,6 +42,64 @@
             margin: 0 auto;
             padding: 20px;
             background-color: var(--background-color);
+        }
+        
+        /* Dark Mode Toggle */
+        .theme-switch-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .theme-switch {
+            display: inline-block;
+            position: relative;
+            width: 50px;
+            height: 25px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 25px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 19px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(25px);
+        }
+        
+        .theme-icon {
+            margin-right: 10px;
+            color: var(--dark-icon-color);
         }
         
         /* Header Styles */
@@ -242,10 +311,22 @@
             a {
                 font-weight: normal;
             }
+            
+            .theme-switch-wrapper {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="theme-switch-wrapper">
+        <span class="theme-icon"><i class="fas fa-moon"></i></span>
+        <label class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+        </label>
+    </div>
+
     <header>
         <h1>AMAN GUPTA</h1>
         <div class="contact-rows">
@@ -405,5 +486,55 @@
             </ul>
         </div>
     </section>
+
+    <script>
+        // Check for saved theme preference or use system preference
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeIcon = document.querySelector(".theme-icon i");
+        
+        // Function to set theme
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.setAttribute("data-theme", "dark");
+                themeToggle.checked = true;
+                themeIcon.className = "fas fa-sun";
+            } else {
+                document.documentElement.removeAttribute("data-theme");
+                themeToggle.checked = false;
+                themeIcon.className = "fas fa-moon";
+            }
+        }
+        
+        // Check for saved user preference
+        const currentTheme = localStorage.getItem("theme");
+        if (currentTheme === "dark") {
+            setTheme(true);
+        } else if (currentTheme === "light") {
+            setTheme(false);
+        } else {
+            // If no saved preference, use system preference
+            setTheme(prefersDarkScheme.matches);
+        }
+        
+        // Toggle theme when switch is clicked
+        themeToggle.addEventListener("change", function() {
+            if (this.checked) {
+                setTheme(true);
+                localStorage.setItem("theme", "dark");
+            } else {
+                setTheme(false);
+                localStorage.setItem("theme", "light");
+            }
+        });
+        
+        // Listen for system preference changes
+        prefersDarkScheme.addEventListener("change", (e) => {
+            // Only apply if user hasn't set a preference
+            if (!localStorage.getItem("theme")) {
+                setTheme(e.matches);
+            }
+        });
+    </script>
 </body>
 </html>
